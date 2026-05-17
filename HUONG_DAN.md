@@ -1,42 +1,43 @@
-# Huong Dan Su Dung - Tu VSCode / PhpStorm Sang Terminal Workflow
+# Hướng Dẫn Sử Dụng – Từ VSCode / PhpStorm Sang Terminal Workflow
 
-> Tai lieu nay viet cho nguoi quen VSCode hoac PhpStorm muon chuyen sang stack
-> **WezTerm + tmux + LazyVim**. Khong yeu cau biet Vim truoc.
-> Doc tuan tu lan dau, sau do dung phan "Tra cuu nhanh" o cuoi.
+> Tài liệu này viết cho người quen VSCode hoặc PhpStorm muốn chuyển sang stack
+> **WezTerm + tmux + LazyVim**. Không yêu cầu biết Vim trước.
+> Đọc tuần tự lần đầu, sau đó dùng phần "Tra cứu nhanh" ở cuối.
 
 ---
 
-## Muc luc
+## Mục lục
 
-1. [Tong quan kien truc](#1-tong-quan-kien-truc)
-2. [Cau noi tu duy tu VSCode / PhpStorm](#2-cau-noi-tu-duy-tu-vscode--phpstorm)
-3. [Triet ly Vim - Modal editing](#3-triet-ly-vim---modal-editing)
+1. [Tổng quan kiến trúc](#1-tổng-quan-kiến-trúc)
+2. [Cầu nối tư duy từ VSCode / PhpStorm](#2-cầu-nối-tư-duy-từ-vscode--phpstorm)
+3. [Triết lý Vim – Modal editing](#3-triết-lý-vim--modal-editing)
 4. [WezTerm](#4-wezterm)
-5. [tmux - Quan ly session, window, pane](#5-tmux---quan-ly-session-window-pane)
-6. [Neovim / LazyVim chi tiet](#6-neovim--lazyvim-chi-tiet)
-7. [Cau noi PhpStorm -> LazyVim](#7-cau-noi-phpstorm---lazyvim)
-8. [Cau noi VSCode -> LazyVim](#8-cau-noi-vscode---lazyvim)
+5. [tmux – Quản lý session, window, pane](#5-tmux--quản-lý-session-window-pane)
+6. [Neovim / LazyVim chi tiết](#6-neovim--lazyvim-chi-tiết)
+7. [Cầu nối PhpStorm → LazyVim](#7-cầu-nối-phpstorm--lazyvim)
+8. [Cầu nối VSCode → LazyVim](#8-cầu-nối-vscode--lazyvim)
 9. [ZSH aliases & helpers](#9-zsh-aliases--helpers)
-10. [AeroSpace - Tiling WM](#10-aerospace---tiling-wm)
-11. [Television - Universal picker](#11-television---universal-picker)
+10. [AeroSpace – Tiling WM](#10-aerospace--tiling-wm)
+11. [Television – Universal picker](#11-television--universal-picker)
 12. [LazyGit](#12-lazygit)
-13. [Workflow mau](#13-workflow-mau)
-14. [Troubleshooting - "Stuck in vim"](#14-troubleshooting---stuck-in-vim)
-15. [Lo trinh hoc 30 ngay](#15-lo-trinh-hoc-30-ngay)
+13. [Workflow mẫu](#13-workflow-mẫu)
+14. [Tình huống thực tế khi viết code](#14-tình-huống-thực-tế-khi-viết-code)
+15. [Troubleshooting – "Stuck in vim"](#15-troubleshooting--stuck-in-vim)
+16. [Lộ trình học 30 ngày](#16-lộ-trình-học-30-ngày)
 
 ---
 
-## 1. Tong quan kien truc
+## 1. Tổng quan kiến trúc
 
 ```
-┌─ AeroSpace (tiling window manager o macOS) ───────────────┐
+┌─ AeroSpace (tiling window manager ở macOS) ───────────────┐
 │                                                            │
 │   ┌─ WezTerm (terminal emulator) ─────────────────────┐    │
 │   │                                                    │    │
 │   │   ┌─ tmux (session/window/pane manager) ──────┐   │    │
 │   │   │                                            │   │    │
-│   │   │   Window 1: nvim (LazyVim - code editor)  │   │    │
-│   │   │   Window 2: zsh (shell, chay lenh)        │   │    │
+│   │   │   Window 1: nvim (LazyVim – code editor)  │   │    │
+│   │   │   Window 2: zsh (shell, chạy lệnh)        │   │    │
 │   │   │   Window 3: lazygit (git TUI)             │   │    │
 │   │   │                                            │   │    │
 │   │   └────────────────────────────────────────────┘   │    │
@@ -44,84 +45,84 @@
 └──────────────────────────────────────────────────────────────┘
 ```
 
-**Vai tro tung lop:**
+**Vai trò từng lớp:**
 
-| Lop | Vai tro | Tuong duong trong VSCode |
+| Lớp | Vai trò | Tương đương trong VSCode |
 |-----|---------|--------------------------|
-| AeroSpace | Sap xep cua so app o macOS | macOS Spaces / Stage Manager |
-| WezTerm | Terminal emulator (ve text, font, color) | Khong co - VSCode tu chua |
+| AeroSpace | Sắp xếp cửa sổ app ở macOS | macOS Spaces / Stage Manager |
+| WezTerm | Terminal emulator (vẽ text, font, color) | Không có – VSCode tự chứa |
 | tmux | Persistent session, chia window/pane | Workspace + Terminal tab |
-| Neovim | Code editor (sua file) | Cua so chinh VSCode |
+| Neovim | Code editor (sửa file) | Cửa sổ chính VSCode |
 | LazyGit | Git TUI | Source Control sidebar |
-| Television | Fuzzy picker da kenh | Ctrl+Shift+P + Quick Open |
+| Television | Fuzzy picker đa kênh | Ctrl+Shift+P + Quick Open |
 
-**Y tuong chinh:** Moi lop lam **mot viec** that tot. Khac voi IDE (mot app lam tat), o day ban **lap rap** tools tu ban toi.
+**Ý tưởng chính:** Mỗi lớp làm **một việc** thật tốt. Khác với IDE (một app làm tất), ở đây bạn **lắp ráp** tools tự bạn.
 
 ---
 
-## 2. Cau noi tu duy tu VSCode / PhpStorm
+## 2. Cầu nối tư duy từ VSCode / PhpStorm
 
-### Ban dang **tu duy theo cua so**, hay chuyen sang **tu duy theo buffer**
+### Bạn đang **tư duy theo cửa sổ**, hãy chuyển sang **tư duy theo buffer**
 
-Trong VSCode/PhpStorm, **moi tab la mot khung nhin va mot file**. Dong tab = dong file khoi bo nho.
+Trong VSCode/PhpStorm, **mỗi tab là một khung nhìn và một file**. Đóng tab = đóng file khỏi bộ nhớ.
 
-Trong Vim, co **3 khai niem khac nhau**:
+Trong Vim, có **3 khái niệm khác nhau**:
 
-| Khai niem | Mo ta | Y nghia |
+| Khái niệm | Mô tả | Ý nghĩa |
 |-----------|-------|---------|
-| **Buffer** | File da load vao bo nho | Co the **an** nhung van ton tai, mo lai khong can load lai disk |
-| **Window** (split) | Khung nhin len 1 buffer | Mot buffer co the hien o nhieu window, hoac an di |
-| **Tab** | Bo cuc nhieu window | Khong phai "file tabs" - it dung |
+| **Buffer** | File đã load vào bộ nhớ | Có thể **ẩn** nhưng vẫn tồn tại, mở lại không cần load lại disk |
+| **Window** (split) | Khung nhìn lên 1 buffer | Một buffer có thể hiện ở nhiều window, hoặc ẩn đi |
+| **Tab** | Bố cục nhiều window | Không phải "file tabs" – ít dùng |
 
-> **Bai hoc 1:** `:bd` (buffer delete) moi that su dong file. Dong split (`:q`) khong dong file.
+> **Bài học 1:** `:bd` (buffer delete) mới thật sự đóng file. Đóng split (`:q`) không đóng file.
 
-### tmux session = workspace cua VSCode
+### tmux session = workspace của VSCode
 
-Trong VSCode ban co "Workspace" - moi project mot folder co `.vscode/settings.json`.
-Trong tmux, **moi tmux session = mot workspace**:
+Trong VSCode bạn có "Workspace" – mỗi project một folder có `.vscode/settings.json`.
+Trong tmux, **mỗi tmux session = một workspace**:
 
-- Detach tmux (`Ctrl+A d`) = dong VSCode nhung **giu nguyen** trang thai (nvim van mo, terminal van chay).
-- Attach lai = quay lai workspace y nguyen, ke ca khi may da khoi dong lai (nho `tmux-resurrect` + `tmux-continuum`).
+- Detach tmux (`Ctrl+A d`) = đóng VSCode nhưng **giữ nguyên** trạng thái (nvim vẫn mở, terminal vẫn chạy).
+- Attach lại = quay lại workspace y nguyên, kể cả khi máy đã khởi động lại (nhờ `tmux-resurrect` + `tmux-continuum`).
 
-### "Search Everywhere" cua PhpStorm va "Quick Open" cua VSCode = telescope.nvim + television
+### "Search Everywhere" của PhpStorm và "Quick Open" của VSCode = telescope.nvim + television
 
-| Tac vu | VSCode | PhpStorm | LazyVim / Stack moi |
+| Tác vụ | VSCode | PhpStorm | LazyVim / Stack mới |
 |--------|--------|----------|---------------------|
-| Mo file theo ten | `Ctrl+P` | `Ctrl+Shift+N` | `<Space><Space>` |
-| Tim text trong project | `Ctrl+Shift+F` | `Ctrl+Shift+F` | `<Space>/` |
-| Tim ham/class | `Ctrl+T` | `Ctrl+N` | `<Space>ss` |
+| Mở file theo tên | `Ctrl+P` | `Ctrl+Shift+N` | `<Space><Space>` |
+| Tìm text trong project | `Ctrl+Shift+F` | `Ctrl+Shift+F` | `<Space>/` |
+| Tìm hàm/class | `Ctrl+T` | `Ctrl+N` | `<Space>ss` |
 | Command palette | `Ctrl+Shift+P` | `Ctrl+Shift+A` | `<Space>` (which-key) |
-| Mo file gan day | `Ctrl+R` | `Ctrl+E` | `<Space>fr` |
+| Mở file gần đây | `Ctrl+R` | `Ctrl+E` | `<Space>fr` |
 
-### "Multi-cursor" -> Visual block + macro + Treesitter
+### "Multi-cursor" → Visual block + macro + Treesitter
 
-Bo "multi-cursor" cua VSCode/PhpStorm rat tien nhung **khong cay sau** vao co bap. Vim co 3 cong cu thay the manh hon:
+Bộ "multi-cursor" của VSCode/PhpStorm rất tiện nhưng **không cắm sâu** vào cơ bắp. Vim có 3 công cụ thay thế mạnh hơn:
 
-- **Visual block** (`Ctrl+V`): chon cot doc, sua dong loat.
-- **Macro** (`q<ten><cac thao tac>q` -> phat lai `@<ten>`): ghi va replay chuoi lenh.
-- **Treesitter swap / textobjects**: chon cau truc cu phap (function, class, argument).
+- **Visual block** (`Ctrl+V`): chọn cột dọc, sửa đồng loạt.
+- **Macro** (`q<tên><các thao tác>q` → phát lại `@<tên>`): ghi và replay chuỗi lệnh.
+- **Treesitter swap / textobjects**: chọn cấu trúc cú pháp (function, class, argument).
 
 ---
 
-## 3. Triet ly Vim - Modal editing
+## 3. Triết lý Vim – Modal editing
 
-Khac biet **lon nhat** voi VSCode: Vim co nhieu **mode**. Phim `j` o mode khac nhau lam viec khac nhau.
+Khác biệt **lớn nhất** với VSCode: Vim có nhiều **mode**. Phím `j` ở mode khác nhau làm việc khác nhau.
 
-### 5 mode chinh
+### 5 mode chính
 
-| Mode | Vao mode bang | Y nghia | Thoat ve Normal |
+| Mode | Vào mode bằng | Ý nghĩa | Thoát về Normal |
 |------|---------------|---------|-----------------|
-| **Normal** | (default sau khi mo file) | Di chuyen, xoa, copy. **Khong** go chu duoc | - |
-| **Insert** | `i` `a` `o` `I` `A` `O` | Go chu nhu editor binh thuong | `Esc` hoac `Ctrl+[` |
-| **Visual** | `v` (char), `V` (line), `Ctrl+V` (block) | Boi den (selection) | `Esc` |
-| **Command** | `:` | Go lenh (`:w`, `:q`, `:s/foo/bar/g`) | `Esc` hoac `Enter` |
-| **Replace** | `R` | Go de len chu cu | `Esc` |
+| **Normal** | (default sau khi mở file) | Di chuyển, xóa, copy. **Không** gõ chữ được | – |
+| **Insert** | `i` `a` `o` `I` `A` `O` | Gõ chữ như editor bình thường | `Esc` hoặc `Ctrl+[` |
+| **Visual** | `v` (char), `V` (line), `Ctrl+V` (block) | Bôi đen (selection) | `Esc` |
+| **Command** | `:` | Gõ lệnh (`:w`, `:q`, `:s/foo/bar/g`) | `Esc` hoặc `Enter` |
+| **Replace** | `R` | Gõ đè lên chữ cũ | `Esc` |
 
-> **Quy tac vang:** Luc nao khong biet minh dang o dau, **bam `Esc` 2 lan** -> ve Normal.
+> **Quy tắc vàng:** Lúc nào không biết mình đang ở đâu, **bấm `Esc` 2 lần** → về Normal.
 
-### "Ngu phap" cua Vim: Verb + Modifier + Noun
+### "Ngữ pháp" của Vim: Verb + Modifier + Noun
 
-Vim khong phai "phim tat", ma la **mot ngon ngu**. Khi quen, ban nghi `delete-inside-parentheses` -> go `di(`.
+Vim không phải "phím tắt", mà là **một ngôn ngữ**. Khi quen, bạn nghĩ `delete-inside-parentheses` → gõ `di(`.
 
 ```
 [count] <verb> <text-object>
@@ -132,12 +133,12 @@ Vim khong phai "phim tat", ma la **mot ngon ngu**. Khi quen, ban nghi `delete-in
            >        ip          = indent inside paragraph
 ```
 
-**Verb thuong dung:**
+**Verb thường dùng:**
 
-| Verb | Y nghia |
+| Verb | Ý nghĩa |
 |------|---------|
-| `d` | delete (xoa va dua vao register) |
-| `c` | change (xoa roi vao Insert) |
+| `d` | delete (xóa và đưa vào register) |
+| `c` | change (xóa rồi vào Insert) |
 | `y` | yank (copy) |
 | `v` | visual select |
 | `>` `<` | indent right / left |
@@ -145,100 +146,100 @@ Vim khong phai "phim tat", ma la **mot ngon ngu**. Khi quen, ban nghi `delete-in
 | `gu` `gU` | lowercase / UPPERCASE |
 | `gc` | comment toggle (Comment.nvim trong LazyVim) |
 
-**Text object thuong dung:**
+**Text object thường dùng:**
 
-| Object | Pham vi |
+| Object | Phạm vi |
 |--------|---------|
-| `w` `W` | tu (cham bo) / tu (khong dau cach) |
-| `s` | cau (sentence) |
-| `p` | doan (paragraph) |
-| `t` | the HTML tag |
-| `i"` `a"` | trong / quanh `""` (a = around, bao gom dau) |
+| `w` `W` | từ (chấm bỏ) / từ (không dấu cách) |
+| `s` | câu (sentence) |
+| `p` | đoạn (paragraph) |
+| `t` | thẻ HTML tag |
+| `i"` `a"` | trong / quanh `""` (a = around, bao gồm dấu) |
 | `i'` `a'` | trong / quanh `''` |
-| `i(` `i[` `i{` | trong dau ngoac |
+| `i(` `i[` `i{` | trong dấu ngoặc |
 | `if` `af` | (Treesitter) trong / quanh function |
 | `ic` `ac` | (Treesitter) trong / quanh class |
 
-**Vi du thuc te:**
+**Ví dụ thực tế:**
 
 ```
-ci"     -> trong file "hello world", con tro o "hello" -> bam ci" -> xoa "hello world" + vao Insert
-da(     -> xoa ca "func(a, b)" ke ca dau ngoac
-yiw     -> copy 1 tu
-viwp    -> paste de len 1 tu (substitute word)
-ggVG    -> chon ca file (gg ve dau, V line-visual, G xuong cuoi)
-=ip     -> auto-indent ca paragraph
-gcip    -> comment ca paragraph
+ci"     → trong file "hello world", con trỏ ở "hello" → bấm ci" → xóa "hello world" + vào Insert
+da(     → xóa cả "func(a, b)" kể cả dấu ngoặc
+yiw     → copy 1 từ
+viwp    → paste đè lên 1 từ (substitute word)
+ggVG    → chọn cả file (gg về đầu, V line-visual, G xuống cuối)
+=ip     → auto-indent cả paragraph
+gcip    → comment cả paragraph
 ```
 
-### Motion (di chuyen) phai biet
+### Motion (di chuyển) phải biết
 
-| Phim | Di chuyen |
+| Phím | Di chuyển |
 |------|-----------|
-| `h j k l` | Trai / Xuong / Len / Phai (mot ky tu) |
-| `w` `b` `e` | Dau tu sau / dau tu truoc / cuoi tu |
-| `0` `^` `$` | Dau dong / dau dong (bo qua space) / cuoi dong |
-| `gg` `G` | Dau file / cuoi file |
-| `<so>G` | Toi dong so do (vd: `42G`) |
-| `f<char>` `F<char>` | Nhay den ky tu tiep / truoc tren cung dong |
-| `t<char>` `T<char>` | Nhu f/F nhung dung **truoc** ky tu |
-| `;` `,` | Lap lai f/t / nguoc lai |
-| `%` | Nhay den dau ngoac doi xung |
-| `*` `#` | Tim tu duoi con tro toi / lui |
-| `Ctrl+d` `Ctrl+u` | Cuon xuong / len nua trang |
-| `Ctrl+f` `Ctrl+b` | Cuon xuong / len 1 trang |
-| `H` `M` `L` | Top / Middle / Bottom man hinh |
-| `zz` `zt` `zb` | Dat dong hien tai ra giua / dau / cuoi man hinh |
+| `h j k l` | Trái / Xuống / Lên / Phải (một ký tự) |
+| `w` `b` `e` | Đầu từ sau / đầu từ trước / cuối từ |
+| `0` `^` `$` | Đầu dòng / đầu dòng (bỏ qua space) / cuối dòng |
+| `gg` `G` | Đầu file / cuối file |
+| `<số>G` | Tới dòng số đó (vd: `42G`) |
+| `f<char>` `F<char>` | Nhảy đến ký tự tiếp / trước trên cùng dòng |
+| `t<char>` `T<char>` | Như f/F nhưng dừng **trước** ký tự |
+| `;` `,` | Lặp lại f/t / ngược lại |
+| `%` | Nhảy đến dấu ngoặc đối xứng |
+| `*` `#` | Tìm từ dưới con trỏ tới / lùi |
+| `Ctrl+d` `Ctrl+u` | Cuộn xuống / lên nửa trang |
+| `Ctrl+f` `Ctrl+b` | Cuộn xuống / lên 1 trang |
+| `H` `M` `L` | Top / Middle / Bottom màn hình |
+| `zz` `zt` `zb` | Đặt dòng hiện tại ra giữa / đầu / cuối màn hình |
 
 ### Edit nhanh
 
-| Phim | Tac dung |
+| Phím | Tác dụng |
 |------|----------|
-| `i` `a` | Insert truoc / sau con tro |
-| `I` `A` | Insert dau dong / cuoi dong |
-| `o` `O` | Tao dong moi duoi / tren |
-| `x` `X` | Xoa ky tu duoi / truoc con tro |
-| `dd` | Xoa ca dong (van la `d` + text object `d`) |
-| `yy` | Copy ca dong |
-| `p` `P` | Paste sau / truoc |
+| `i` `a` | Insert trước / sau con trỏ |
+| `I` `A` | Insert đầu dòng / cuối dòng |
+| `o` `O` | Tạo dòng mới dưới / trên |
+| `x` `X` | Xóa ký tự dưới / trước con trỏ |
+| `dd` | Xóa cả dòng (vẫn là `d` + text object `d`) |
+| `yy` | Copy cả dòng |
+| `p` `P` | Paste sau / trước |
 | `u` | Undo |
 | `Ctrl+r` | Redo |
-| `.` | Lap lai lenh sua **cuoi cung** (cuc manh) |
-| `J` | Noi dong duoi vao dong hien tai |
-| `r<char>` | Thay 1 ky tu |
-| `~` | Toggle hoa/thuong |
-| `>>` `<<` | Indent dong hien tai phai / trai |
+| `.` | Lặp lại lệnh sửa **cuối cùng** (cực mạnh) |
+| `J` | Nối dòng dưới vào dòng hiện tại |
+| `r<char>` | Thay 1 ký tự |
+| `~` | Toggle hoa/thường |
+| `>>` `<<` | Indent dòng hiện tại phải / trái |
 
 ---
 
 ## 4. WezTerm
 
-**Vi tri config:** `~/.config/wezterm/wezterm.lua` (symlink toi `dotfiles/wezterm/wezterm.lua`)
+**Vị trí config:** `~/.config/wezterm/wezterm.lua` (symlink tới `dotfiles/wezterm/wezterm.lua`)
 
-### Thiet lap hien tai
+### Thiết lập hiện tại
 
 - Font: **JetBrainsMono Nerd Font 13pt**, line-height 1.3
 - Theme: **Catppuccin Mocha**
-- Opacity 0.85 + blur 30 (trong suot, mo nen)
-- Cua so khoi dong: 200 cot x 55 dong
-- **Tu dong khoi dong vao tmux session "main"** khi mo
+- Opacity 0.85 + blur 30 (trong suốt, mờ nền)
+- Cửa sổ khởi động: 200 cột x 55 dòng
+- **Tự động khởi động vào tmux session "main"** khi mở
 
-### Phim tat WezTerm
+### Phím tắt WezTerm
 
-| Phim | Chuc nang |
+| Phím | Chức năng |
 |------|-----------|
 | `Ctrl+Q` | Toggle fullscreen (Native macOS) |
-| `Ctrl+'` | Xoa scrollback buffer |
-| `Cmd+Click` / `Ctrl+Click` | Mo link / file path |
-| `Cmd++` / `Cmd+-` | Tang / giam font |
+| `Ctrl+'` | Xóa scrollback buffer |
+| `Cmd+Click` / `Ctrl+Click` | Mở link / file path |
+| `Cmd++` / `Cmd+-` | Tăng / giảm font |
 | `Cmd+0` | Reset font |
 
-> **Luu y:** WezTerm khong can chia split rieng vi tmux da lo. Hay de tmux quan ly tat ca.
+> **Lưu ý:** WezTerm không cần chia split riêng vì tmux đã lo. Hãy để tmux quản lý tất cả.
 
-### Tai sao Nerd Font quan trong
+### Tại sao Nerd Font quan trọng
 
-Status bar tmux (catppuccin), file icon trong neo-tree, indicator trong lualine - **tat ca dung glyph cua Nerd Font**.
-Neu ban thay o vuong `▢` thay vi icon thi font terminal sai. Kiem tra:
+Status bar tmux (catppuccin), file icon trong neo-tree, indicator trong lualine – **tất cả dùng glyph của Nerd Font**.
+Nếu bạn thấy ô vuông `▢` thay vì icon thì font terminal sai. Kiểm tra:
 
 ```bash
 fc-list | grep -i nerd
@@ -246,14 +247,14 @@ fc-list | grep -i nerd
 
 ---
 
-## 5. tmux - Quan ly session, window, pane
+## 5. tmux – Quản lý session, window, pane
 
 ### Prefix = `Ctrl+A`
 
-**Cach goi prefix:** bam `Ctrl+A`, **tha tay ra**, roi bam phim tiep theo.
-Khong giu Ctrl cho phim thu hai.
+**Cách gọi prefix:** bấm `Ctrl+A`, **thả tay ra**, rồi bấm phím tiếp theo.
+Không giữ Ctrl cho phím thứ hai.
 
-### Khai niem 3 cap
+### Khái niệm 3 cấp
 
 ```
 Session (project)
@@ -264,195 +265,203 @@ Session (project)
         └── Pane
 ```
 
-- **Session** ~ "project workspace" - moi project nen 1 session.
-- **Window** ~ "tab" trong session - dat ten theo muc dich (nvim / shell / lazygit).
-- **Pane** ~ chia mot window thanh nhieu khung tren cung 1 tab.
+- **Session** ~ "project workspace" – mỗi project nên 1 session.
+- **Window** ~ "tab" trong session – đặt tên theo mục đích (nvim / shell / lazygit).
+- **Pane** ~ chia một window thành nhiều khung trên cùng 1 tab.
 
 ### Sessions
 
-| Phim | Chuc nang |
+| Phím | Chức năng |
 |------|-----------|
-| `Ctrl+A o` | **sessionx** picker (fzf + zoxide) - chon/tao session, ho tro tim thu muc |
+| `Ctrl+A o` | **sessionx** picker (fzf + zoxide) – chọn/tạo session, hỗ trợ tìm thư mục |
 | `Ctrl+A S` | choose-tree session built-in |
-| `Ctrl+A d` | Detach session (giu nen) |
-| `Ctrl+A $` | Doi ten session |
-| `Ctrl+A )` `(` | Session ke / truoc |
-| `Ctrl+A p` | **floax** - terminal noi tren mau hinh (popup), bam lai de dong |
+| `Ctrl+A d` | Detach session (giữ nền) |
+| `Ctrl+A $` | Đổi tên session |
+| `Ctrl+A )` `(` | Session kế / trước |
+| `Ctrl+A p` | **floax** – terminal nổi trên màn hình (popup), bấm lại để đóng |
 
-**Resurrect & continuum** da bat:
-- Tu dong save session moi 15 phut (`continuum`).
-- Khi mo lai may, attach session = trang thai ngay hom truoc (ke ca nvim).
-- `Ctrl+A Ctrl+S` save thu cong, `Ctrl+A Ctrl+R` restore.
+**Resurrect & continuum** đã bật:
+- Tự động save session mỗi 15 phút (`continuum`).
+- Khi mở lại máy, attach session = trạng thái ngay hôm trước (kể cả nvim).
+- `Ctrl+A Ctrl+S` save thủ công, `Ctrl+A Ctrl+R` restore.
 
-### Windows (giong tabs trong VSCode)
+### Windows (giống tabs trong VSCode)
 
-| Phim | Chuc nang |
+| Phím | Chức năng |
 |------|-----------|
-| `Ctrl+A Ctrl+C` | Tao window moi (mo `$HOME`) |
-| `Ctrl+A c` | **Dong pane** (warning: khong phai tao window!) - xem ghi chu |
-| `Ctrl+A H` | Window truoc |
+| `Ctrl+A Ctrl+C` | Tạo window mới (mở `$HOME`) |
+| `Ctrl+A c` | **Đóng pane** (warning: không phải tạo window!) – xem ghi chú |
+| `Ctrl+A H` | Window trước |
 | `Ctrl+A L` | Window sau |
-| `Ctrl+A Ctrl+A` | Last window (toggle 2 window cuoi) |
-| `Ctrl+A 1` ... `9` | Nhay den window so 1-9 |
-| `Ctrl+A r` | Doi ten window |
-| `Ctrl+A w` | **choose-tree picker** (sau khi sua o dotfiles) - chon window/session truc quan |
-| `Ctrl+A &` | Kill window (hoi xac nhan) |
+| `Ctrl+A Ctrl+A` | Last window (toggle 2 window cuối) |
+| `Ctrl+A 1` ... `9` | Nhảy đến window số 1-9 |
+| `Ctrl+A r` | Đổi tên window |
+| `Ctrl+A w` | **choose-tree picker** (sau khi sửa ở dotfiles) – chọn window/session trực quan |
+| `Ctrl+A &` | Kill window (hỏi xác nhận) |
 
-> **Ghi chu:** `Ctrl+A c` o config nay duoc bind toi `kill-pane` (xem `tmux.reset.conf`).
-> Default tmux la `new-window`, neu ban kho chiu co the doi lai trong reset file.
+> **Ghi chú:** `Ctrl+A c` ở config này được bind tới `kill-pane` (xem `tmux.reset.conf`).
+> Default tmux là `new-window`, nếu bạn khó chịu có thể đổi lại trong reset file.
 
-### Panes (chia cua so)
+### Panes (chia cửa sổ)
 
-| Phim | Chuc nang |
+| Phím | Chức năng |
 |------|-----------|
-| `Ctrl+A v` | Chia doc (canh ben), giu nguyen thu muc |
-| `Ctrl+A s` | Chia ngang (tren/duoi), giu nguyen thu muc |
+| `Ctrl+A v` | Chia dọc (cạnh bên), giữ nguyên thư mục |
+| `Ctrl+A s` | Chia ngang (trên/dưới), giữ nguyên thư mục |
 | `Ctrl+A \|` | Chia ngang (built-in) |
-| `Ctrl+A h/j/k/l` | Di chuyen giua panes |
-| `Ctrl+A z` | Zoom pane (toan man hinh, bam lai de thu nho) |
-| `Ctrl+A c` | Dong pane hien tai (binding o config nay) |
-| `Ctrl+A x` | Hoan vi pane voi pane ke |
-| `Ctrl+A ,` `.` | Resize trai 20 / phai 20 |
-| `Ctrl+A -` `=` | Resize xuong 7 / len 7 |
-| `Ctrl+A *` | Toggle sync panes (go 1 lan -> nhieu pane cung go) |
-| `Ctrl+A q` | Hien so pane vai giay (bam so de focus) |
+| `Ctrl+A h/j/k/l` | Di chuyển giữa panes |
+| `Ctrl+A z` | Zoom pane (toàn màn hình, bấm lại để thu nhỏ) |
+| `Ctrl+A c` | Đóng pane hiện tại (binding ở config này) |
+| `Ctrl+A x` | Hoán vị pane với pane kế |
+| `Ctrl+A ,` `.` | Resize trái 20 / phải 20 |
+| `Ctrl+A -` `=` | Resize xuống 7 / lên 7 |
+| `Ctrl+A *` | Toggle sync panes (gõ 1 lần → nhiều pane cùng gõ) |
+| `Ctrl+A q` | Hiện số pane vài giây (bấm số để focus) |
 
-### Copy mode (cuon, tim, copy text)
+### Copy mode (cuộn, tìm, copy text)
 
-| Phim | Chuc nang |
+| Phím | Chức năng |
 |------|-----------|
-| `Ctrl+A [` | Vao copy mode |
-| `h j k l` `w b` | Di chuyen kieu Vim |
-| `Ctrl+u` `Ctrl+d` | Cuon nua trang |
-| `g` `G` | Dau / cuoi buffer |
-| `/` `?` | Tim toi / lui |
-| `n` `N` | Ket qua tim ke / truoc |
-| `v` | Bat dau chon |
+| `Ctrl+A [` | Vào copy mode |
+| `h j k l` `w b` | Di chuyển kiểu Vim |
+| `Ctrl+u` `Ctrl+d` | Cuộn nửa trang |
+| `g` `G` | Đầu / cuối buffer |
+| `/` `?` | Tìm tới / lùi |
+| `n` `N` | Kết quả tìm kế / trước |
+| `v` | Bắt đầu chọn |
 | `Ctrl+V` | Block selection |
-| `y` | Copy vao clipboard he thong (nho `tmux-yank`) |
-| `q` hoac `Esc` | Thoat copy mode |
+| `y` | Copy vào clipboard hệ thống (nhờ `tmux-yank`) |
+| `q` hoặc `Esc` | Thoát copy mode |
 
-### Khac
+### Khác
 
-| Phim | Chuc nang |
+| Phím | Chức năng |
 |------|-----------|
 | `Ctrl+A K` | Clear screen + Enter |
 | `Ctrl+A R` | Reload `~/.config/tmux/tmux.conf` |
 | `Ctrl+A I` | TPM: install / update plugins |
 | `Ctrl+A U` | TPM: update plugins |
-| `Ctrl+A :` | Command prompt cua tmux (vd: `:setw synchronize-panes`) |
-| `Ctrl+A t` | Hien dong ho lon trong pane |
+| `Ctrl+A :` | Command prompt của tmux (vd: `:setw synchronize-panes`) |
+| `Ctrl+A t` | Hiện đồng hồ lớn trong pane |
+
+### Mouse mode
+
+Config đã bật `set -g mouse on`, nghĩa là:
+- Scroll wheel trong TUI app (claude code, less, nvim) được tmux truyền thẳng xuống app → cuộn đúng kiểu native.
+- Scroll wheel trong shell thường → tmux tự vào copy-mode để cuộn lịch sử. Bấm `q` để thoát.
+- Click vào pane khác → focus pane đó. Drag border → resize pane.
+- Muốn select text bằng chuột để copy ra ngoài tmux, giữ `Option` (Alt) khi kéo trong WezTerm.
 
 ### Status bar (catppuccin)
 
-Ben trai: `[session_name]` + window list.
-Ben phai: thu muc hien tai + dong ho (`%H:%M`).
+Bên trái: `[session_name]` + window list.
+Bên phải: thư mục hiện tại + đồng hồ (`%H:%M`).
 
-Tuy chinh trong `tmux/tmux.conf`:
+Tùy chỉnh trong `tmux/tmux.conf`:
 
 ```
 set -g @catppuccin_status_modules_right "directory date_time"
 set -g @catppuccin_date_time_text "%H:%M"
 ```
 
-Doi format: vd `"%H:%M  %d-%b"` de them ngay.
+Đổi format: vd `"%H:%M  %d-%b"` để thêm ngày.
 
 ---
 
-## 6. Neovim / LazyVim chi tiet
+## 6. Neovim / LazyVim chi tiết
 
-**Leader = `<Space>`**. Tat ca shortcut chu cai trong LazyVim deu bat dau bang `Space`.
+**Leader = `<Space>`**. Tất cả shortcut chữ cái trong LazyVim đều bắt đầu bằng `Space`.
 
-> **Khi quen leader, dung `<Space>` mot lan trong Normal mode** - which-key se hien menu cac phim tiep theo. Khong can nho het.
+> **Khi quên leader, dùng `<Space>` một lần trong Normal mode** – which-key sẽ hiện menu các phím tiếp theo. Không cần nhớ hết.
 
-### Cau truc thu muc nvim
+### Cấu trúc thư mục nvim
 
 ```
 dotfiles/nvim/
-├── init.lua              # entry point - load LazyVim
-├── lazy-lock.json        # version lock cua plugin
-├── lazyvim.json          # cau hinh "extras" da bat
+├── init.lua              # entry point – load LazyVim
+├── lazy-lock.json        # version lock của plugin
+├── lazyvim.json          # cấu hình "extras" đã bật
 ├── stylua.toml           # rule format Lua code
 └── lua/
-    ├── config/           # cau hinh he thong (autocmds, keymaps, options)
-    └── plugins/          # them plugin / override LazyVim
+    ├── config/           # cấu hình hệ thống (autocmds, keymaps, options)
+    └── plugins/          # thêm plugin / override LazyVim
 ```
 
-Khi them plugin moi: tao file `.lua` trong `lua/plugins/` - LazyVim **tu dong** load.
+Khi thêm plugin mới: tạo file `.lua` trong `lua/plugins/` – LazyVim **tự động** load.
 
 ### File & Navigation
 
-| Phim | Chuc nang | Tuong duong VSCode |
+| Phím | Chức năng | Tương đương VSCode |
 |------|-----------|--------------------|
-| `<Space><Space>` | Tim file (fuzzy) | `Ctrl+P` |
+| `<Space><Space>` | Tìm file (fuzzy) | `Ctrl+P` |
 | `<Space>ff` | Find files (cwd) | `Ctrl+P` |
 | `<Space>fr` | Recent files | `Ctrl+R` |
 | `<Space>fb` | Find buffers | `Ctrl+Tab` |
-| `<Space>/` | Live grep ca project | `Ctrl+Shift+F` |
-| `<Space>sw` | Search word duoi con tro | - |
-| `<Space>sg` | Live grep (alias) | - |
+| `<Space>/` | Live grep cả project | `Ctrl+Shift+F` |
+| `<Space>sw` | Search word dưới con trỏ | – |
+| `<Space>sg` | Live grep (alias) | – |
 | `<Space>ss` | Symbol trong file | `Ctrl+Shift+O` |
-| `<Space>sS` | Symbol toan workspace | `Ctrl+T` |
+| `<Space>sS` | Symbol toàn workspace | `Ctrl+T` |
 | `<Space>e` | Toggle neo-tree (explorer) | `Ctrl+B` |
-| `<Space>E` | neo-tree o file hien tai | `Right click reveal` |
+| `<Space>E` | neo-tree ở file hiện tại | `Right click reveal` |
 | `<Space>,` | Buffer picker | `Ctrl+Tab` |
 | `<Space>bd` | Delete buffer (close file) | `Ctrl+W` |
-| `<Space>bD` | Delete buffer kem force | - |
-| `<Space>bp` | Pin buffer | - |
-| `<Space>fp` | Find Plugin File (custom) | - |
+| `<Space>bD` | Delete buffer kèm force | – |
+| `<Space>bp` | Pin buffer | – |
+| `<Space>fp` | Find Plugin File (custom) | – |
 
 ### LSP / Code
 
-| Phim | Chuc nang | Tuong duong |
+| Phím | Chức năng | Tương đương |
 |------|-----------|-------------|
 | `gd` | Go to definition | F12 |
-| `gD` | Go to declaration | - |
+| `gD` | Go to declaration | – |
 | `gr` | References | Shift+F12 |
 | `gI` | Implementation | Ctrl+F12 |
-| `gy` | Type definition | - |
+| `gy` | Type definition | – |
 | `K` | Hover documentation | Mouse over / Ctrl+K K |
 | `<Space>ca` | Code actions | `Ctrl+.` / `Alt+Enter` |
 | `<Space>cr` | Rename symbol | F2 |
 | `<Space>cf` | Format file (conform.nvim) | `Shift+Alt+F` |
-| `<Space>cd` | Line diagnostics | - |
+| `<Space>cd` | Line diagnostics | – |
 | `<Space>cs` | Symbols outline | `Ctrl+Shift+O` |
-| `]d` `[d` | Diagnostic ke / truoc | F8 / Shift+F8 |
-| `]e` `[e` | Error ke / truoc | - |
+| `]d` `[d` | Diagnostic kế / trước | F8 / Shift+F8 |
+| `]e` `[e` | Error kế / trước | – |
 | `<Space>xx` | Trouble panel (all diagnostics) | Problems tab |
-| `<Space>xd` | Document diagnostics | - |
+| `<Space>xd` | Document diagnostics | – |
 
-### Cua so / Splits trong nvim
+### Cửa sổ / Splits trong nvim
 
-| Phim | Chuc nang |
+| Phím | Chức năng |
 |------|-----------|
-| `<Space>wv` hoac `<Ctrl-w>v` | Split doc |
-| `<Space>ws` hoac `<Ctrl-w>s` | Split ngang |
-| `<Ctrl-h/j/k/l>` | Di chuyen giua splits (cung lam viec voi tmux pane qua `vim-tmux-navigator`) |
-| `<Ctrl-w>=` | Resize bang nhau |
-| `<Ctrl-w>_` | Toi da chieu cao split |
-| `<Ctrl-w>\|` | Toi da chieu ngang split |
-| `<Space>-` | Split duoi (LazyVim) |
-| `<Space>\|` | Split phai (LazyVim) |
-| `<Ctrl-w>q` | Dong split |
+| `<Space>wv` hoặc `<Ctrl-w>v` | Split dọc |
+| `<Space>ws` hoặc `<Ctrl-w>s` | Split ngang |
+| `<Ctrl-h/j/k/l>` | Di chuyển giữa splits (cũng làm việc với tmux pane qua `vim-tmux-navigator`) |
+| `<Ctrl-w>=` | Resize bằng nhau |
+| `<Ctrl-w>_` | Tối đa chiều cao split |
+| `<Ctrl-w>\|` | Tối đa chiều ngang split |
+| `<Space>-` | Split dưới (LazyVim) |
+| `<Space>\|` | Split phải (LazyVim) |
+| `<Ctrl-w>q` | Đóng split |
 
-### Tabs (it dung - dung buffer thay)
+### Tabs (ít dùng – dùng buffer thay)
 
-| Phim | Chuc nang |
+| Phím | Chức năng |
 |------|-----------|
-| `<Space><Tab><Tab>` | Tab moi |
-| `<Space><Tab>]` | Tab ke |
-| `<Space><Tab>[` | Tab truoc |
-| `<Space><Tab>d` | Dong tab |
+| `<Space><Tab><Tab>` | Tab mới |
+| `<Space><Tab>]` | Tab kế |
+| `<Space><Tab>[` | Tab trước |
+| `<Space><Tab>d` | Đóng tab |
 
 ### Git
 
-| Phim | Chuc nang |
+| Phím | Chức năng |
 |------|-----------|
 | `<Space>gg` | **LazyGit** full TUI |
-| `<Space>gG` | LazyGit cho file hien tai |
+| `<Space>gG` | LazyGit cho file hiện tại |
 | `<Space>gb` | Git blame full file (`gitsigns`) |
 | `<Space>gB` | Git blame line |
-| `]h` `[h` | Hunk ke / truoc |
+| `]h` `[h` | Hunk kế / trước |
 | `<Space>ghs` | Stage hunk |
 | `<Space>ghr` | Reset hunk |
 | `<Space>ghp` | Preview hunk |
@@ -460,165 +469,168 @@ Khi them plugin moi: tao file `.lua` trong `lua/plugins/` - LazyVim **tu dong** 
 
 ### Save / Quit / Run
 
-| Lenh | Y nghia |
+| Lệnh | Ý nghĩa |
 |------|---------|
 | `:w` | Save |
-| `:wa` | Save tat ca |
+| `:wa` | Save tất cả |
 | `:q` | Quit |
-| `:q!` | Quit khong save |
-| `:wq` hoac `:x` | Save & quit |
-| `:qa` | Quit tat ca |
-| `:e <path>` | Mo file |
-| `:e!` | Reload file tu disk |
+| `:q!` | Quit không save |
+| `:wq` hoặc `:x` | Save & quit |
+| `:qa` | Quit tất cả |
+| `:e <path>` | Mở file |
+| `:e!` | Reload file từ disk |
 | `:bd` | Close buffer |
-| `:so %` | Source file Lua hien tai |
-| `:!<cmd>` | Chay shell command (vd: `:!ls`) |
-| `:r !<cmd>` | Chen output shell vao buffer |
+| `:so %` | Source file Lua hiện tại |
+| `:!<cmd>` | Chạy shell command (vd: `:!ls`) |
+| `:r !<cmd>` | Chèn output shell vào buffer |
 
 ### Search & replace
 
-| Lenh | Chuc nang |
+| Lệnh | Chức năng |
 |------|-----------|
-| `/foo` | Tim "foo" toi |
-| `?foo` | Tim "foo" lui |
-| `n` `N` | Ket qua ke / truoc |
-| `:%s/foo/bar/g` | Replace toan file |
-| `:%s/foo/bar/gc` | Replace co confirm |
-| `:%s/\<foo\>/bar/g` | Replace whole-word (`\<...\>` la word boundary) |
-| `<Space>sr` | Spectre - search & replace project-wide (neu cai) |
-| `*` `#` | Tim tu duoi con tro toi / lui |
+| `/foo` | Tìm "foo" tới |
+| `?foo` | Tìm "foo" lùi |
+| `n` `N` | Kết quả kế / trước |
+| `:%s/foo/bar/g` | Replace toàn file |
+| `:%s/foo/bar/gc` | Replace có confirm |
+| `:%s/\<foo\>/bar/g` | Replace whole-word (`\<...\>` là word boundary) |
+| `<Space>sr` | Spectre – search & replace project-wide (nếu cài) |
+| `*` `#` | Tìm từ dưới con trỏ tới / lùi |
 
-### Snippets (LuaSnip mac dinh trong LazyVim)
+### Snippets (LuaSnip mặc định trong LazyVim)
 
-- Bam tab khi popup cmp mo de chap nhan goi y / nhay placeholder.
-- `<Ctrl-l>` `<Ctrl-h>` jump placeholder toi / lui.
-- Snippet ngu canh ngon ngu kich hoat sau khi LSP server (Mason install) san sang.
+- Bấm tab khi popup cmp mở để chấp nhận gợi ý / nhảy placeholder.
+- `<Ctrl-l>` `<Ctrl-h>` jump placeholder tới / lùi.
+- Snippet ngữ cảnh ngôn ngữ kích hoạt sau khi LSP server (Mason install) sẵn sàng.
 
 ### Autocomplete (nvim-cmp)
 
-- Trong Insert, danh chu se bat popup.
-- `<Tab>` `<S-Tab>` chon item.
+- Trong Insert, đánh chữ sẽ bật popup.
+- `<Tab>` `<S-Tab>` chọn item.
 - `<Enter>` confirm.
 - `<Ctrl-e>` cancel popup.
-- `<Ctrl-Space>` mo popup thu cong.
+- `<Ctrl-Space>` mở popup thủ công.
 
-### Mason - quan ly LSP / formatter / linter
+### Mason – quản lý LSP / formatter / linter
 
 ```
-:Mason              -- mo UI Mason
-:LspInstall <ten>   -- cai LSP server
-:MasonUpdate        -- cap nhat
+:Mason              -- mở UI Mason
+:LspInstall <tên>   -- cài LSP server
+:MasonUpdate        -- cập nhật
 ```
 
-LSP da co san khi LazyVim phat hien filetype.
-Vi du `.php` -> ban can `:Mason` cai `intelephense` hoac `phpactor`.
-File `.go` -> `gopls`. JS/TS -> `typescript-language-server`.
+LSP đã có sẵn khi LazyVim phát hiện filetype.
+Ví dụ `.php` → bạn cần `:Mason` cài `intelephense` hoặc `phpactor`.
+File `.go` → `gopls`. JS/TS → `typescript-language-server`.
 
-### Conform.nvim - format
+### Conform.nvim – format
 
-Format khi save da bat cho cac filetype cau hinh trong `lua/plugins/conform.lua`.
-Format thu cong: `<Space>cf`.
+Format khi save đã bật cho các filetype cấu hình trong `lua/plugins/conform.lua`.
+Format thủ công: `<Space>cf`.
 
 ### Comment (Comment.nvim)
 
-| Phim | Tac dung |
+| Phím | Tác dụng |
 |------|----------|
-| `gcc` | Toggle comment dong hien tai |
+| `gcc` | Toggle comment dòng hiện tại |
 | `gc` + motion | Comment range (vd `gcap` = comment 1 paragraph) |
 | `gc` (Visual) | Comment selection |
 
 ### Surround (nvim-surround)
 
-Da bat trong `lua/plugins/surround.lua`.
+Đã bật trong `lua/plugins/surround.lua`.
 
-| Phim | Y nghia |
+| Phím | Ý nghĩa |
 |------|---------|
-| `ys<motion><char>` | Add surround. Vd `ysiw"` = surround word voi `""` |
-| `ds<char>` | Delete surround. Vd `ds"` xoa `""` quanh con tro |
-| `cs<old><new>` | Change. Vd `cs'"` doi `'...'` thanh `"..."` |
-| `ysiwt<tag>` | Surround word voi HTML tag |
+| `ys<motion><char>` | Add surround. Vd `ysiw"` = surround word với `""` |
+| `ds<char>` | Delete surround. Vd `ds"` xóa `""` quanh con trỏ |
+| `cs<old><new>` | Change. Vd `cs'"` đổi `'...'` thành `"..."` |
+| `ysiwt<tag>` | Surround word với HTML tag |
 
-### Macros - "ghi va replay"
-
-```
-qa              -> bat dau ghi vao register a
-... lam viec ...
-q               -> ngung ghi
-@a              -> replay
-@@              -> replay lan nua
-10@a            -> replay 10 lan
-```
-
-Manh hon multi-cursor cua VSCode khi dung dung.
-
-### Multi-cursor thay the
-
-LazyVim co `<Ctrl-N>` (vim-visual-multi neu extra). Hoac dung:
+### Macros – "ghi và replay"
 
 ```
-:%s/pattern/replace/g       -- replace toan file
-ggVG=                       -- chon ca file roi auto-indent
-Ctrl+V <chon cot> I <chu> Esc  -- block insert
+qa              → bắt đầu ghi vào register a
+... làm việc ...
+q               → ngưng ghi
+@a              → replay
+@@              → replay lần nữa
+10@a            → replay 10 lần
 ```
 
-### Neo-tree shortcut quan trong (khi dang trong neo-tree)
+Mạnh hơn multi-cursor của VSCode khi dùng đúng.
 
-| Phim | Tac dung |
+### Multi-cursor thay thế
+
+LazyVim có `<Ctrl-N>` (vim-visual-multi nếu extra). Hoặc dùng:
+
+```
+:%s/pattern/replace/g       -- replace toàn file
+ggVG=                       -- chọn cả file rồi auto-indent
+Ctrl+V <chọn cột> I <chữ> Esc  -- block insert
+```
+
+### Neo-tree shortcut quan trọng (khi đang trong neo-tree)
+
+| Phím | Tác dụng |
 |------|----------|
-| `<Enter>` | Mo file |
-| `a` | Add file/folder (`/foo/` = folder) |
+| `<Enter>` | Mở file |
+| `a` | Add file/folder (`foo/` = folder; `bar/baz.go` = tạo cả chain) |
+| `A` | Add folder |
 | `d` | Delete |
 | `r` | Rename |
-| `c` | Copy |
+| `c` | Copy → tới đích → `p` paste |
+| `x` | Cut |
 | `m` | Move |
-| `y` | Copy ten file |
+| `y` | Copy tên file |
 | `Y` | Copy full path |
+| `o` | **Prefix sort** (`oc`/`og`/`om`/`on`/`os`/`ot`) – không phải open |
 | `H` | Toggle hidden files |
 | `R` | Refresh |
-| `?` | Help |
+| `?` | Help (xem toàn bộ keymap) |
 
 ### Telescope tips
 
-- Trong picker: `<Ctrl-j>` `<Ctrl-k>` di chuyen, `<Ctrl-q>` dua tat ca ket qua vao quickfix.
-- `<Ctrl-x>` mo trong split ngang, `<Ctrl-v>` mo trong split doc.
-- `<Esc>` thoat luon (LazyVim cau hinh insert-mode-on-open).
+- Trong picker: `<Ctrl-j>` `<Ctrl-k>` di chuyển, `<Ctrl-q>` đưa tất cả kết quả vào quickfix.
+- `<Ctrl-x>` mở trong split ngang, `<Ctrl-v>` mở trong split dọc.
+- `<Esc>` thoát luôn (LazyVim cấu hình insert-mode-on-open).
 
 ---
 
-## 7. Cau noi PhpStorm -> LazyVim
+## 7. Cầu nối PhpStorm → LazyVim
 
 | PhpStorm | LazyVim / Tools |
 |----------|-----------------|
 | Search Everywhere (`Shift Shift`) | `<Space><Space>` (file) + `<Space>/` (text) + `<Space>sS` (symbol) |
-| Find Action (`Ctrl Shift A`) | `<Space>` -> dung which-key, hoac `:` go lenh |
-| Refactor -> Rename (`Shift F6`) | `<Space>cr` |
-| Refactor -> Extract Method | Code actions `<Space>ca` (neu LSP support, vd: tsserver, intelephense) |
-| Reformat Code (`Cmd Alt L`) | `<Space>cf` (conform.nvim) hoac auto-save |
-| Optimize Imports | `<Space>co` (neu co), hoac LSP code action |
+| Find Action (`Ctrl Shift A`) | `<Space>` → dùng which-key, hoặc `:` gõ lệnh |
+| Refactor → Rename (`Shift F6`) | `<Space>cr` |
+| Refactor → Extract Method | Code actions `<Space>ca` (nếu LSP support, vd: tsserver, intelephense) |
+| Reformat Code (`Cmd Alt L`) | `<Space>cf` (conform.nvim) hoặc auto-save |
+| Optimize Imports | `<Space>co` (nếu có), hoặc LSP code action |
 | Find Usages (`Alt F7`) | `gr` |
 | Go to Declaration (`Cmd B`) | `gd` |
 | Go to Implementation (`Cmd Alt B`) | `gI` |
-| Go to Test (`Cmd Shift T`) | Dung neotest neu cai |
-| Run / Debug | `nvim-dap` + `nvim-dap-ui` (LazyVim extra "dap" co san) |
-| Database tool | external app (TablePlus / DBeaver), hoac plugin `vim-dadbod-ui` |
-| HTTP Client | plugin `rest.nvim` hoac dung `curl` / `xh` (alias `http`) |
+| Go to Test (`Cmd Shift T`) | Dùng neotest nếu cài |
+| Run / Debug | `nvim-dap` + `nvim-dap-ui` (LazyVim extra "dap" có sẵn) |
+| Database tool | external app (TablePlus / DBeaver), hoặc plugin `vim-dadbod-ui` |
+| HTTP Client | plugin `rest.nvim` hoặc dùng `curl` / `xh` (alias `http`) |
 | Live Templates | LuaSnip snippets |
-| Local History | `undotree` (`<Space>uu`) - di chuyen graph undo |
-| Code With Me | Khong co tuong duong - dung `tmate` neu can share session |
-| .editorconfig | LazyVim ho tro mac dinh |
-| Markdown preview | plugin `markdown-preview.nvim` hoac dung `glow` trong terminal |
-| Bookmark dong (`F11`) | `<Space>ma` (harpoon neu cai) hoac `mA` (built-in mark) |
+| Local History | `undotree` (`<Space>uu`) – di chuyển graph undo |
+| Code With Me | Không có tương đương – dùng `tmate` nếu cần share session |
+| .editorconfig | LazyVim hỗ trợ mặc định |
+| Markdown preview | plugin `markdown-preview.nvim` hoặc dùng `glow` trong terminal |
+| Bookmark dòng (`F11`) | `<Space>ma` (harpoon nếu cài) hoặc `mA` (built-in mark) |
 
-### Dac biet cho PHP
+### Đặc biệt cho PHP
 
-Cai cac thanh phan sau qua `:Mason`:
+Cài các thành phần sau qua `:Mason`:
 
-- `intelephense` (LSP - free version OK) hoac `phpactor`
-- `php-cs-fixer` hoac `pretty-php` (formatter)
-- `phpstan` hoac `psalm` (linter)
+- `intelephense` (LSP – free version OK) hoặc `phpactor`
+- `php-cs-fixer` hoặc `pretty-php` (formatter)
+- `phpstan` hoặc `psalm` (linter)
 - `phpdebug-adapter` (xdebug qua DAP)
 
-Cau hinh nhanh trong `lua/plugins/php.lua`:
+Cấu hình nhanh trong `lua/plugins/php.lua`:
 
 ```lua
 return {
@@ -631,52 +643,52 @@ return {
 
 ---
 
-## 8. Cau noi VSCode -> LazyVim
+## 8. Cầu nối VSCode → LazyVim
 
 | VSCode | LazyVim |
 |--------|---------|
 | `Ctrl+P` Quick Open | `<Space><Space>` |
 | `Ctrl+Shift+P` Command Palette | `<Space>` (which-key) + `:` (vim cmd) |
 | `Ctrl+B` Toggle sidebar | `<Space>e` (neo-tree) |
-| `Ctrl+J` Toggle terminal | `<Space>tt` (toggleterm) hoac `Ctrl+A %` (tmux pane) |
+| `Ctrl+J` Toggle terminal | `<Space>tt` (toggleterm) hoặc `Ctrl+A %` (tmux pane) |
 | `Ctrl+Shift+F` Find in files | `<Space>/` |
-| `Ctrl+Shift+H` Replace in files | Spectre `<Space>sr` hoac `:cdo s/foo/bar/gc` |
-| `Ctrl+D` Multi-cursor add next | `*` -> `cgn` -> `.` lap |
+| `Ctrl+Shift+H` Replace in files | Spectre `<Space>sr` hoặc `:cdo s/foo/bar/gc` |
+| `Ctrl+D` Multi-cursor add next | `*` → `cgn` → `.` lặp |
 | `Alt+Click` Add cursor | Visual block `Ctrl+V` |
 | `F2` Rename symbol | `<Space>cr` |
 | `Ctrl+.` Quick fix | `<Space>ca` |
 | `Ctrl+/` Toggle comment | `gcc` |
-| `Alt+Up/Down` Move line | `:m+1` / `:m-2`, hoac map `<A-j>` `<A-k>` (LazyVim mac dinh) |
+| `Alt+Up/Down` Move line | `:m+1` / `:m-2`, hoặc map `<A-j>` `<A-k>` (LazyVim mặc định) |
 | `Ctrl+Enter` New line below | `o` |
-| `Ctrl+G` Go to line | `<so>G` (vd `42G`) |
-| `Ctrl+Tab` Switch buffer | `<Space>,` hoac `<S-h>` `<S-l>` |
+| `Ctrl+G` Go to line | `<số>G` (vd `42G`) |
+| `Ctrl+Tab` Switch buffer | `<Space>,` hoặc `<S-h>` `<S-l>` |
 | Zen mode | `<Space>uZ` |
-| Settings sync | Git ca thu muc `~/.config/nvim` |
+| Settings sync | Git cả thư mục `~/.config/nvim` |
 
-### Multi-cursor "thay the" cu the
+### Multi-cursor "thay thế" cụ thể
 
-Yeu cau: doi `oldName` -> `newName` o nhieu cho trong file.
+Yêu cầu: đổi `oldName` → `newName` ở nhiều chỗ trong file.
 
-**Cach Vim:**
+**Cách Vim:**
 
 ```
-/oldName<Enter>      -- tim
-cgn newName<Esc>     -- change next match, doi xong ve normal
-.                    -- lap lai cho ket qua tiep theo
+/oldName<Enter>      -- tìm
+cgn newName<Esc>     -- change next match, đổi xong về normal
+.                    -- lặp lại cho kết quả tiếp theo
 .                    -- ...
 ```
 
-**Hoac:**
+**Hoặc:**
 
 ```
-:%s/\<oldName\>/newName/gc   -- replace toan file co confirm tung lan
+:%s/\<oldName\>/newName/gc   -- replace toàn file có confirm từng lần
 ```
 
 ---
 
 ## 9. ZSH aliases & helpers
 
-**Vi tri:** `dotfiles/zshrc/.zshrc` (symlink toi `~/.zshrc`)
+**Vị trí:** `dotfiles/zshrc/.zshrc` (symlink tới `~/.zshrc`)
 
 ### Git
 
@@ -686,7 +698,7 @@ gc "msg"         # git commit -m "msg"
 gca "msg"        # git commit -a -m
 gp               # git push origin HEAD
 gpu main         # git pull origin main
-glog             # git log dep co graph
+glog             # git log đẹp có graph
 gco branch       # git checkout
 gb               # git branch
 gba              # git branch -a
@@ -711,7 +723,7 @@ dx container     # docker exec -it
 ```bash
 k get pods       # kubectl get pods
 kg pods          # kubectl get
-kd pod ten       # kubectl describe
+kd pod tên       # kubectl describe
 kl pod           # kubectl logs -f
 ke pod -- sh     # kubectl exec -it
 kc cluster       # kubectx
@@ -724,56 +736,56 @@ kcns ns          # set current namespace
 ```bash
 l                # eza -l --icons --git -a
 lt               # eza tree view (level 2)
-ltree            # eza tree khong long format
+ltree            # eza tree không long format
 cat file         # bat (syntax highlight)
 v file           # nvim
-cx folder        # cd vao + ls
+cx folder        # cd vào + ls
 fcd              # fzf cd
-fv               # fzf find file -> mo nvim
+fv               # fzf find file → mở nvim
 ..               # cd ..
 ...              # cd ../..
 ....             # cd ../../..
 ```
 
-### Khac
+### Khác
 
 ```bash
-http URL         # xh (curl thay the)
+http URL         # xh (curl thay thế)
 cl               # clear
 server           # python http server port 4445
 tunnel           # ngrok http 4445
-mat              # cmatrix trong tmux window moi (vui :))
+mat              # cmatrix trong tmux window mới (vui :))
 ```
 
-### Autosuggestions (chu xam phia sau)
+### Autosuggestions (chữ xám phía sau)
 
-- `Ctrl+E` - chap nhan goi y (chi dien, **chua** chay)
-- `Ctrl+W` - chap nhan goi y va **chay luon**
+- `Ctrl+E` – chấp nhận gợi ý (chỉ điền, **chưa** chạy)
+- `Ctrl+W` – chấp nhận gợi ý và **chạy luôn**
 
 ---
 
-## 10. AeroSpace - Tiling WM
+## 10. AeroSpace – Tiling WM
 
-**Vi tri config:** `aerospace/aerospace.toml` (symlink toi `~/.config/aerospace/aerospace.toml`)
+**Vị trí config:** `aerospace/aerospace.toml` (symlink tới `~/.config/aerospace/aerospace.toml`)
 
-Bat dau: Mo AeroSpace.app tu `/Applications`, cho phep Accessibility trong System Settings.
+Bắt đầu: Mở AeroSpace.app từ `/Applications`, cho phép Accessibility trong System Settings.
 
-### Phim co ban
+### Phím cơ bản
 
-| Phim | Chuc nang |
+| Phím | Chức năng |
 |------|-----------|
-| `Alt+H/J/K/L` | Focus cua so trai/duoi/tren/phai |
-| `Alt+Shift+H/J/K/L` | Di chuyen cua so |
-| `Alt+1`..`Alt+4` | Chuyen workspace 1-4 |
+| `Alt+H/J/K/L` | Focus cửa sổ trái/dưới/trên/phải |
+| `Alt+Shift+H/J/K/L` | Di chuyển cửa sổ |
+| `Alt+1`..`Alt+4` | Chuyển workspace 1-4 |
 | `Alt+Shift+1`..`4` | Move app sang workspace |
 | `Alt+Tab` | Last workspace |
-| `Alt+W` | Mo WezTerm |
-| `Alt+O` | Mo Obsidian (neu binding co) |
+| `Alt+W` | Mở WezTerm |
+| `Alt+O` | Mở Obsidian (nếu binding có) |
 | `Alt+F` | Toggle fullscreen |
 
 ---
 
-## 11. Television - Universal picker
+## 11. Television – Universal picker
 
 ```bash
 tv                    # File picker default
@@ -784,38 +796,38 @@ tv k8s-pods           # Kubernetes pods (qua kubectl)
 tv gh-prs             # GitHub PRs
 tv ssh-hosts          # SSH config hosts
 tv tmux-sessions      # Tmux sessions
-tv alias              # Xem va chay aliases
+tv alias              # Xem và chạy aliases
 ```
 
 Trong picker:
 
-- `Ctrl+S` chuyen kenh (channel)
+- `Ctrl+S` chuyển kênh (channel)
 - `Tab` multi-select
-- `Enter` chon
-- `Ctrl+J/K` di chuyen
-- `Esc` thoat
+- `Enter` chọn
+- `Ctrl+J/K` di chuyển
+- `Esc` thoát
 
 ---
 
 ## 12. LazyGit
 
-Mo bang `<Space>gg` trong nvim hoac chay `lazygit` o terminal.
+Mở bằng `<Space>gg` trong nvim hoặc chạy `lazygit` ở terminal.
 
-### Panel layout (so 1-5)
+### Panel layout (số 1-5)
 
 ```
-1. Status   - thay doi unstaged/staged
-2. Files    - chi tiet file
-3. Branches - branches local + remote
-4. Commits  - log
-5. Stash    - stash
+1. Status   – thay đổi unstaged/staged
+2. Files    – chi tiết file
+3. Branches – branches local + remote
+4. Commits  – log
+5. Stash    – stash
 ```
 
-Bam phim so de chuyen panel.
+Bấm phím số để chuyển panel.
 
-### Phim chinh
+### Phím chính
 
-| Phim | Tac dung |
+| Phím | Tác dụng |
 |------|----------|
 | `Space` | Toggle stage file/hunk |
 | `c` | Commit |
@@ -829,64 +841,64 @@ Bam phim so de chuyen panel.
 | `M` | Merge |
 | `r` | Rebase |
 | `R` | Reset |
-| `e` | Edit file (mo nvim) |
-| `<Enter>` | Vao chi tiet |
+| `e` | Edit file (mở nvim) |
+| `<Enter>` | Vào chi tiết |
 | `?` | Help |
-| `q` | Thoat |
+| `q` | Thoát |
 
 ---
 
-## 13. Workflow mau
+## 13. Workflow mẫu
 
-### Bat dau project moi
+### Bắt đầu project mới
 
 ```bash
-# 1. Mo WezTerm (tu dong attach session "main")
+# 1. Mở WezTerm (tự động attach session "main")
 
-# 2. Tao session moi cho project
+# 2. Tạo session mới cho project
 Ctrl+A o
-# -> go ten "myapi" hoac chon thu muc qua zoxide -> Enter
+# → gõ tên "myapi" hoặc chọn thư mục qua zoxide → Enter
 
-# 3. Trong session moi, mo nvim
+# 3. Trong session mới, mở nvim
 cd ~/Workspace/myapi
 v .
 
 # 4. Trong nvim:
-Space Space        # tim file
+Space Space        # tìm file
 Space /            # grep
 Space gg           # lazygit
 
-# 5. Can shell ben canh nvim
-Ctrl+A v           # split doc trong tmux
-# hoac
-Ctrl+A Ctrl+C      # window moi (tmux)
+# 5. Cần shell bên cạnh nvim
+Ctrl+A v           # split dọc trong tmux
+# hoặc
+Ctrl+A Ctrl+C      # window mới (tmux)
 ```
 
-### Sua bug nhanh
+### Sửa bug nhanh
 
 ```bash
-fv                 # fzf find file -> nvim
+fv                 # fzf find file → nvim
 # Trong nvim:
-gd                 # go to definition cua function loi
-gr                 # tim noi su dung
-*                  # tim tu nay trong file
-ci"                # sua noi dung trong dau ""
+gd                 # go to definition của function lỗi
+gr                 # tìm nơi sử dụng
+*                  # tìm từ này trong file
+ci"                # sửa nội dung trong dấu ""
 :w                 # save
-]d                 # diagnostic ke - kiem tra hint LSP
-Space ca           # code action - dung khi co goi y fix
+]d                 # diagnostic kế – kiểm tra hint LSP
+Space ca           # code action – dùng khi có gợi ý fix
 Space gg           # commit qua lazygit
 ```
 
-### Het ngay
+### Hết ngày
 
 ```bash
 Ctrl+A d           # detach session
-# Dong WezTerm
-# Tat may
+# Đóng WezTerm
+# Tắt máy
 
-# Hom sau:
-# 1. Bat may, mo WezTerm
-# 2. Attach session san co -> nvim van mo dung file dang sua, terminal van o cwd cu
+# Hôm sau:
+# 1. Bật máy, mở WezTerm
+# 2. Attach session sẵn có → nvim vẫn mở đúng file đang sửa, terminal vẫn ở cwd cũ
 ```
 
 ### Review PR
@@ -895,178 +907,730 @@ Ctrl+A d           # detach session
 gco pr-branch
 v .
 Space gg
-# Trong lazygit: bam 4 (Commits) -> chon commit -> Enter de xem diff
-# Hoac trong nvim: :Gitsigns toggle_deleted
-# Hoac shell: gh pr checkout 123 && gh pr diff
+# Trong lazygit: bấm 4 (Commits) → chọn commit → Enter để xem diff
+# Hoặc trong nvim: :Gitsigns toggle_deleted
+# Hoặc shell: gh pr checkout 123 && gh pr diff
 ```
 
 ---
 
-## 14. Troubleshooting - "Stuck in vim"
+## 14. Tình huống thực tế khi viết code
 
-### Khong biet minh dang o dau
+Phần này là **toa thuốc** – từng đoạn mô tả một việc bạn làm trong ngày, kèm chuỗi phím chính xác. Đọc lướt, gặp tình huống thì áp dụng. Khi quen sẽ tự kết hợp.
 
-Bam `Esc` 2-3 lan. Neu van la, bam `Ctrl+C`.
-Kiem tra goc duoi cua nvim - se ghi mode (`-- INSERT --`, `-- VISUAL --`...).
+### 14.1. Đổi tên một biến trong toàn bộ file
 
-### Lo bam dau ":" khong thoat duoc
+**Tình huống:** đang sửa hàm, đổi `userId` → `accountId` ở ~20 chỗ trong cùng file.
 
-Day la Command mode. Bam `Esc`.
+**Cách nhanh nhất (Vim "way"):**
 
-### Khong save duoc, bao "no write since last change"
+```
+/userId<Enter>          # tìm match đầu
+cgn                     # change next match
+accountId<Esc>          # gõ tên mới, thoát
+.                       # lặp lại ở match kế (kiểm tra ngữ cảnh trước khi bấm .)
+.                       # ...
+```
+
+**Hoặc force-replace toàn file:**
+
+```
+:%s/\<userId\>/accountId/gc
+```
+
+`\<...\>` = word boundary (không match `userIds`, `currentUserId`).
+`gc` = global + confirm từng lần.
+
+### 14.2. Rename biến/hàm an toàn theo LSP (toàn project)
+
+**Tình huống:** đổi tên một hàm xuất khẩu, phải sửa cả nơi import.
+
+- Đặt con trỏ lên tên hàm.
+- `<Space>cr` → gõ tên mới → Enter.
+- LSP đổi đúng symbol, **không đụng** vào chuỗi string trùng tên.
+
+Khác `:%s` ở chỗ: LSP hiểu code, hiểu scope.
+
+### 14.3. Thay đổi nội dung bên trong dấu ngoặc / chuỗi
+
+**Tình huống:** `log.Info("user not found")` → đổi message.
+
+```
+fi"     # nhảy tới dấu " đầu
+ci"     # change inside double-quote
+# Insert mode → gõ message mới
+<Esc>
+```
+
+Biến thể:
+- `ci(` – sửa toàn bộ trong `(...)`
+- `ci{` – sửa toàn bộ trong `{...}`
+- `ci[` – sửa trong `[...]`
+- `cit` – sửa nội dung trong HTML tag
+
+### 14.4. Bao quanh một từ bằng dấu ngoặc / function call
+
+**Tình huống:** có `name`, muốn thành `String(name)`.
+
+```
+ysiwf String<Enter>    # nvim-surround: surround word với function call
+```
+
+Hoặc đơn giản hơn:
+
+```
+ysiw)                  # bao word với (...)
+I String<Esc>          # thêm "String" trước đoạn vừa surround
+```
+
+Đổi dấu ngoặc cũ sang khác: `'hello'` → `"hello"`:
+
+```
+cs'"                   # change surround ' → "
+```
+
+Xóa bao quanh: `(foo)` → `foo`:
+
+```
+ds(
+```
+
+### 14.5. Tìm và mở file trong khi viết code
+
+**Tình huống:** đang viết `import ... from '../utils/format'`, cần mở file đó.
+
+- Đặt con trỏ trên path → `gf` (go to file).
+- Hoặc `<Space><Space>` → gõ `format` → Enter.
+- Quay lại file cũ: `<Ctrl-o>` (jump back).
+
+### 14.6. Nhảy giữa khai báo / cách dùng
+
+| Vị trí | Phím | Tác dụng |
+|--------|------|----------|
+| Tên hàm/biến | `gd` | Đi đến nơi khai báo |
+| Tên hàm | `gr` | Liệt kê tất cả nơi gọi (quickfix list) |
+| Type/Interface | `gy` | Type definition |
+| Bất cứ đâu | `<Ctrl-o>` / `<Ctrl-i>` | Lùi / tiến trong jumplist |
+
+Mẹo: `gr` mở quickfix → `:cnext` / `:cprev` (hoặc `]q` / `[q`) để duyệt từng kết quả.
+
+### 14.7. Sửa nhiều dòng giống nhau (block insert)
+
+**Tình huống:** thêm `const ` vào đầu 10 dòng liên tiếp.
+
+```
+<Ctrl-V>      # visual block
+10j           # mở rộng selection 10 dòng xuống
+I             # insert ở đầu mỗi dòng
+const         # gõ chữ
+<Esc>         # áp dụng cho toàn bộ block
+```
+
+Xóa cột:
+
+```
+<Ctrl-V>
+10j
+$             # tới cuối mỗi dòng
+d             # xóa
+```
+
+### 14.8. Sửa các dòng có pattern bằng macro
+
+**Tình huống:** có 50 dòng `{"key": "value"}`, muốn đổi thành `key = value`.
+
+```
+qq                          # bắt đầu ghi macro vào register q
+0                           # về đầu dòng
+f"                          # nhảy tới " đầu
+ci"<Esc>                    # xóa key cũ... thực ra đơn giản hơn:
+                            # ví dụ thực tế:
+:s/"\(\w*\)": "\(\w*\)"/\1 = \2/<Enter>
+j                           # xuống dòng kế
+q                           # ngưng ghi
+50@q                        # phát lại macro 50 lần
+```
+
+Khi macro ổn, chỉnh số lần phát theo nhu cầu.
+
+### 14.9. Comment một block code nhanh
+
+```
+gcc           # comment 1 dòng
+5gcc          # comment 5 dòng từ dòng hiện tại
+gcap          # comment cả paragraph
+V}gc          # visual line tới đoạn trắng → comment
+```
+
+Bỏ comment: lặp lại phím trên.
+
+### 14.10. Xem định nghĩa mà không rời file
+
+**Tình huống:** đang viết, muốn liếc qua signature của hàm `parseConfig`.
+
+```
+gd                  # go to definition (mở file kia)
+<Ctrl-o>            # quay về file cũ ngay sau khi xem
+```
+
+Hoặc dùng hover documentation **không cần nhảy**:
+
+```
+K                   # hover doc/signature
+K                   # bấm thêm để vào hover window và scroll
+```
+
+### 14.11. Thêm import sau khi gõ tên hàm
+
+**Tình huống:** gõ `formatDate(...)` nhưng chưa import.
+
+- LSP báo lỗi underline.
+- `<Space>ca` → chọn "Add import" / "Auto import" / "Import …".
+- Hoặc `]d` để nhảy tới chỗ báo lỗi tiếp theo nếu cách xa.
+
+### 14.12. Format file đang viết
+
+```
+<Space>cf          # format file qua conform.nvim
+gg=G               # auto-indent cả file (built-in Vim, không format đẹp như Prettier)
+```
+
+Format từng phần:
+
+```
+=ip                # indent paragraph
+=i{                # indent inside block
+```
+
+### 14.13. Mở terminal cạnh code để test
+
+**Cách 1 (tmux – tốt nhất):**
+
+```
+Ctrl+A v           # chia pane dọc, có shell
+# Chạy test, đọc log
+Ctrl+A h           # quay lại pane nvim
+```
+
+**Cách 2 (terminal trong nvim):**
+
+```
+<Space>tt          # toggleterm – terminal nổi
+<Esc><Esc>         # thoát terminal mode → normal mode trong terminal
+i                  # quay lại insert để gõ tiếp
+```
+
+Mình khuyên dùng tmux pane vì sống ngoài nvim, không bị mất khi `:qa`.
+
+### 14.14. Chạy test cho file đang viết
+
+**Setup TDD 3 pane:**
+
+```
+# Pane 1 (left): nvim
+# Pane 2 (top right): chạy test watcher
+ctrl+a v           # chia dọc
+ctrl+a s           # pane 2 chia ngang
+# Trong pane top-right:
+npm test -- --watch
+# Pane 3 (bottom right): shell rảnh để chạy lệnh ad-hoc
+```
+
+Sửa code ở pane nvim, save → pane test tự re-run, đọc kết quả ngay cạnh.
+
+### 14.15. Sửa file config / JSON nhanh
+
+**Tình huống:** sửa `package.json`, đổi version "1.2.3" → "1.3.0".
+
+```
+/"version"<Enter>
+f"                  # nhảy tới " đầu của value
+ci"1.3.0<Esc>
+:w
+```
+
+**Sửa giá trị key bất kỳ trong JSON:**
+
+```
+/"timeout"<Enter>
+f:                  # tới dấu :
+w                   # tới giá trị
+ciw3000<Esc>
+```
+
+### 14.16. Edit nhiều file song song
+
+**Cách 1 – split:**
+
+```
+:vsp ../other-file.go     # mở file kia bên cạnh
+<Ctrl-h> / <Ctrl-l>       # nhảy giữa 2 panes
+```
+
+**Cách 2 – buffer (không chia split):**
+
+```
+<Space><Space>            # tìm file mới → mở
+<Space>,                  # buffer picker (giống Cmd+Tab)
+<S-h> <S-l>               # buffer trước / kế (LazyVim)
+:bd                       # đóng buffer hiện tại
+```
+
+### 14.17. Đặt "bookmark" để nhảy lại nhanh
+
+**Built-in marks:**
+
+```
+ma                        # mark vị trí hiện tại là 'a' (local file)
+mA                        # mark global (nhảy giữa file)
+'a                        # nhảy về mark a
+``                        # nhảy về vị trí trước khi nhảy
+:marks                    # xem tất cả mark
+```
+
+**Harpoon (cài thêm):** quản lý 4-5 file "hot" như iOS dock – tham khảo plugin `ThePrimeagen/harpoon`.
+
+### 14.18. Lùi lại trạng thái cũ của file
+
+```
+u                         # undo
+<Ctrl-r>                  # redo
+:earlier 5m               # quay về trạng thái 5 phút trước
+:later 5m                 # ngược lại
+<Space>uu                 # mở undotree (visual graph)
+```
+
+Vim lưu undo tree, không phải stack — nhánh undo cũ không mất.
+
+### 14.19. Tìm và edit theo regex toàn file
+
+**Tình huống:** đổi tất cả `console.log(...)` thành `logger.debug(...)`.
+
+```
+:%s/console\.log(\(.*\))/logger.debug(\1)/g
+```
+
+`\(...\)` capture group, `\1` reference. Bấm `c` cuối → confirm từng cái.
+
+### 14.20. Tìm và replace toàn project
+
+```
+:Spectre                  # mở UI search-and-replace project-wide (nếu cài)
+```
+
+Hoặc workflow telescope + quickfix:
+
+```
+<Space>/                  # live grep
+<Ctrl-q>                  # đẩy tất cả match vào quickfix list
+:cdo s/foo/bar/gc | update    # áp dụng :s lên từng item quickfix
+```
+
+### 14.21. Sửa nhanh lỗi typo trong tên biến vừa gõ
+
+**Tình huống:** vừa gõ `usreName` mà ý là `userName`.
+
+Trong Insert mode:
+
+```
+<Ctrl-w>                  # xóa từ vừa gõ
+userName                  # gõ lại đúng
+```
+
+Trong Normal:
+
+```
+b                         # về đầu từ
+ciw userName<Esc>
+```
+
+### 14.22. Mở file vừa thấy trong stack trace / log
+
+Log có `at internal/auth/service.go:42`:
+
+- Trong terminal: `Cmd+Click` lên path (WezTerm hyperlink).
+- Trong nvim: `gF` (go to file with line) — nhảy đúng file đúng dòng.
+
+### 14.23. Đóng tất cả buffer trừ buffer hiện tại
+
+```
+:%bd|e#|bd#
+```
+
+Hoặc dùng lệnh sẵn của LazyVim:
+
+```
+<Space>bo                 # buffer-only (close others)
+```
+
+### 14.24. Soạn commit message dài
+
+**Tình huống:** `<Space>gg` → soạn commit, cần nhiều dòng + xuống dòng đẹp.
+
+Trong LazyGit, bấm `c` mở editor. Editor sẽ là nvim (đã set `EDITOR=nvim`). Soạn xong `:wq`.
+
+### 14.25. Xem diff trước khi commit
+
+```
+<Space>gg                 # lazygit
+# Panel 1 → trỏ vào file → Enter
+# Xem hunk, Space để stage từng hunk → c để commit
+```
+
+Hoặc trong nvim:
+
+```
+<Space>ghd                # diffview cho file hiện tại
+:DiffviewOpen             # diff toàn workspace
+:DiffviewClose            # đóng
+```
+
+### 14.26. So sánh với branch main
+
+```bash
+# Shell:
+git diff main...HEAD --stat
+gh pr diff                # nếu đang trên PR branch
+
+# Trong nvim:
+:DiffviewOpen main...HEAD
+```
+
+### 14.27. Quay lại session đang dở khi máy reboot
+
+```bash
+# Mở WezTerm
+# tmux-continuum tự attach session "main"
+# nvim đã được tmux-resurrect khôi phục → mở đúng file đang sửa hôm qua
+```
+
+Nếu không tự khôi phục: `Ctrl+A Ctrl+R` để restore thủ công.
+
+### 14.28. Làm việc với nhiều repo cùng lúc
+
+```bash
+Ctrl+A o                  # sessionx
+# Chọn repo A → tạo session A
+# Detach: Ctrl+A d
+# Chọn repo B → tạo session B
+# Switch nhanh: Ctrl+A o lần nữa
+```
+
+Mỗi session độc lập – nvim, lazygit, log đều riêng.
+
+### 14.29. Đóng file mà không thoát nvim
+
+Thói quen VSCode: `Ctrl+W`. Trong nvim:
+
+```
+<Space>bd                 # close buffer (giữ window)
+:bd                       # tương đương
+```
+
+`:q` đóng cả split – khác `:bd`. Khi chỉ có một split, `:q` cũng đóng nvim.
+
+### 14.30. Xem hàm/biến này đến từ đâu (import path)
+
+Đặt con trỏ trên symbol → `K` (hover) – LSP hiển thị doc + full qualified name + path.
+Hoặc `gd` để nhảy thẳng đến file định nghĩa.
+
+### 14.31. Edit chuỗi dài có nhiều dấu nháy
+
+**Tình huống:** chuỗi SQL `"SELECT * FROM users WHERE id = '" + id + "'"`, muốn ghép lại.
+
+```
+V                         # visual line
+:s/" + /'/g               # replace cục bộ trong selection
+```
+
+Hoặc bao quanh selection bằng template literal:
+
+```
+S`                        # surround visual với backtick
+```
+
+### 14.32. Định vị "tôi đang ở đâu" trong cây code
+
+```
+<Space>cs                 # symbols outline – cây hàm/class của file
+:Outline                  # (nếu cài aerial.nvim)
+<Space>e                  # neo-tree highlight file hiện tại
+```
+
+### 14.33. Đọc log nhiều dòng nhanh
+
+Trong tmux pane log:
+
+```
+Ctrl+A [                  # copy mode
+?ERROR<Enter>             # tìm "ERROR" ngược về phía trên
+n / N                     # kết quả kế / trước
+q                         # thoát copy mode
+```
+
+Mouse mode đã bật → cũng có thể scroll bằng wheel.
+
+### 14.34. Đổi case nhanh
+
+| Tình huống | Phím |
+|------------|------|
+| `userName` → `UserName` | `~` trên chữ `u` (toggle case 1 ký tự) |
+| Cả từ thành UPPERCASE | `gUiw` |
+| Cả từ thành lowercase | `guiw` |
+| Cả dòng UPPERCASE | `gUU` |
+| Toggle case cả vùng | Visual → `~` |
+
+### 14.35. Insert nhanh "use strict" / boilerplate đầu file
+
+```
+gg                        # về đầu file
+O                         # tạo dòng mới phía trên (Insert mode)
+"use strict";<Esc>
+```
+
+Nếu là boilerplate dài → dùng snippet (LuaSnip). Trong LazyVim gõ trigger (vd: `clog` cho `console.log`) rồi `<Tab>`.
+
+### 14.36. Xóa tất cả dòng trắng thừa trong file
+
+```
+:g/^$/d
+```
+
+`:g/pattern/cmd` = áp dụng `cmd` cho mọi dòng match `pattern`. Ở đây xóa các dòng rỗng.
+
+### 14.37. Sửa indent của block code
+
+**Tăng indent block trong `{...}`:**
+
+```
+>i{                       # indent inside braces, tăng 1 cấp
+=i{                       # auto-indent inside braces theo formatter
+```
+
+Visual mode:
+
+```
+V}                        # chọn tới dấu trắng cuối block
+>                         # tăng indent
+gv                        # reselect (visual cũ)
+>                         # tăng tiếp
+```
+
+### 14.38. Quick chạy lệnh shell rồi paste output vào file
+
+**Tình huống:** muốn paste `git log --oneline -5` vào commit notes.
+
+```
+:r !git log --oneline -5
+```
+
+Output chèn ngay sau dòng hiện tại.
+
+### 14.39. Diff giữa 2 file mở
+
+```
+:vsp file2
+:windo diffthis           # bật diff cho cả 2 split
+:windo diffoff            # tắt
+```
+
+### 14.40. "Tôi sửa nhầm file khác" – chỉ undo file hiện tại
+
+`u` chỉ undo buffer hiện tại. Nếu lỡ save và muốn quay về phiên bản trước:
+
+```
+:earlier 1h               # về 1 giờ trước
+:later 30m                # tiến 30 phút
+<Space>uu                 # undotree để xem nhánh
+```
+
+Nếu đã commit thì dùng git: `:Gitsigns reset_buffer` hoặc `git checkout HEAD -- <file>`.
+
+---
+
+## 15. Troubleshooting – "Stuck in vim"
+
+### Không biết mình đang ở đâu
+
+Bấm `Esc` 2-3 lần. Nếu vẫn lạ, bấm `Ctrl+C`.
+Kiểm tra góc dưới của nvim – sẽ ghi mode (`-- INSERT --`, `-- VISUAL --`...).
+
+### Lỡ bấm dấu ":" không thoát được
+
+Đây là Command mode. Bấm `Esc`.
+
+### Không save được, báo "no write since last change"
 
 ```
 :wq         -- save & quit
-:q!         -- quit khong save
+:q!         -- quit không save
 ```
 
-### File khong save cao "E37: No write since last change"
+### File không save báo "E37: No write since last change"
 
-Co the file `readonly`. Kiem tra `:set ro?`. Thay doi: `:set noro`.
-Hoac save force: `:w!`.
+Có thể file `readonly`. Kiểm tra `:set ro?`. Thay đổi: `:set noro`.
+Hoặc save force: `:w!`.
 
-### "Found a swap file" khi mo file
+### "Found a swap file" khi mở file
 
-Da co session khac mo file (hoac crash truoc). Chon:
-- `O` - read-only mo
-- `R` - recover swap (lay du lieu chua save)
-- `D` - delete swap (neu chac chan khong can)
+Đã có session khác mở file (hoặc crash trước). Chọn:
+- `O` – read-only mở
+- `R` – recover swap (lấy dữ liệu chưa save)
+- `D` – delete swap (nếu chắc chắn không cần)
 
-### Bam phim khong phan ung trong tmux
+### Bấm phím không phản ứng trong tmux
 
-Co the do escape time. Trong config da dat `set -g escape-time 0`. Neu van loi, reload: `Ctrl+A R`.
+Có thể do escape time. Trong config đã đặt `set -g escape-time 0`. Nếu vẫn lỗi, reload: `Ctrl+A R`.
 
-### Plugin khong load sau khi sua tmux.conf
+### Plugin không load sau khi sửa tmux.conf
 
 ```
 Ctrl+A R       # reload config
 Ctrl+A I       # TPM install
 ```
 
-### Status bar tmux ve mau xanh la mac dinh
+### Status bar tmux về màu xanh lá mặc định
 
-Plugin catppuccin chua chay. Reload + install:
+Plugin catppuccin chưa chạy. Reload + install:
 
 ```bash
 tmux source-file ~/.config/tmux/tmux.conf
 ~/.tmux/plugins/tpm/bin/install_plugins
 ```
 
-### Nvim mo cham
+### Scroll wheel trong claude code / TUI app gửi mũi tên (không cuộn)
+
+Mouse mode chưa bật trong tmux. Đã được set sẵn (`set -g mouse on`). Nếu vẫn gặp:
 
 ```
-:Lazy profile      -- xem plugin nao load lau
-:checkhealth       -- chan doan tong the
+:set -g mouse on          # trong command mode tmux
+Ctrl+A R                   # reload
 ```
 
-### LSP khong nhan filetype
+### Nvim mở chậm
 
 ```
-:LspInfo                 -- xem LSP da attach chua
-:Mason                   -- cai LSP cho ngon ngu
+:Lazy profile      -- xem plugin nào load lâu
+:checkhealth       -- chẩn đoán tổng thể
+```
+
+### LSP không nhận filetype
+
+```
+:LspInfo                 -- xem LSP đã attach chưa
+:Mason                   -- cài LSP cho ngôn ngữ
 :checkhealth lsp
 ```
 
-### Format khong chay khi save
+### Format không chạy khi save
 
 ```
-:ConformInfo             -- xem formatter cau hinh
+:ConformInfo             -- xem formatter cấu hình
 :checkhealth conform
 ```
 
-### Reset toan bo plugin
+### Reset toàn bộ plugin
 
 ```bash
 rm -rf ~/.local/share/nvim ~/.local/state/nvim ~/.cache/nvim
-nvim                     # LazyVim se cai lai
+nvim                     # LazyVim sẽ cài lại
 ```
 
 ---
 
-## 15. Lo trinh hoc 30 ngay
+## 16. Lộ trình học 30 ngày
 
-### Tuan 1 - Sinh ton
+### Tuần 1 – Sinh tồn
 
-Muc tieu: **mo file, sua, save, thoat** khong panic.
+Mục tiêu: **mở file, sửa, save, thoát** không panic.
 
-- Hoc `i a o`, `Esc`, `:w`, `:q`, `:wq`, `:q!`.
-- Di chuyen: `h j k l`, `w b`, `gg G`, `0 $`.
-- Xoa: `x`, `dd`. Undo: `u`. Paste: `p`.
-- Trong tmux: chi can `Ctrl+A o` (session), `Ctrl+A d` (detach), `Ctrl+A 1-9` (window).
-- Trong LazyVim: chi can `<Space><Space>`, `<Space>/`, `<Space>e`, `<Space>gg`.
+- Học `i a o`, `Esc`, `:w`, `:q`, `:wq`, `:q!`.
+- Di chuyển: `h j k l`, `w b`, `gg G`, `0 $`.
+- Xóa: `x`, `dd`. Undo: `u`. Paste: `p`.
+- Trong tmux: chỉ cần `Ctrl+A o` (session), `Ctrl+A d` (detach), `Ctrl+A 1-9` (window).
+- Trong LazyVim: chỉ cần `<Space><Space>`, `<Space>/`, `<Space>e`, `<Space>gg`.
 
-> Muc tieu tuan 1: **khong quay ve VSCode** de sua 1 file.
+> Mục tiêu tuần 1: **không quay về VSCode** để sửa 1 file.
 
-### Tuan 2 - Tang toc
+### Tuần 2 – Tăng tốc
 
-- Hoc verb + text object: `ciw`, `da(`, `yi"`, `vip`.
+- Học verb + text object: `ciw`, `da(`, `yi"`, `vip`.
 - LSP: `gd`, `gr`, `K`, `<Space>ca`, `<Space>cr`.
 - tmux pane: `Ctrl+A v`, `Ctrl+A s`, `Ctrl+A z`.
-- LazyGit hoan chinh.
+- LazyGit hoàn chỉnh.
+- Đọc section 14, áp dụng 3 tình huống mỗi ngày.
 
-### Tuan 3 - Hieu qua
+### Tuần 3 – Hiệu quả
 
-- `f t F T ; ,` - di chuyen ngang dong nhanh.
-- `*` `#` `n` `N` `/` `?` - tim trong file.
-- `.` (dot repeat) - lam ban yeu Vim.
+- `f t F T ; ,` – di chuyển ngang dòng nhanh.
+- `*` `#` `n` `N` `/` `?` – tìm trong file.
+- `.` (dot repeat) – làm bạn yêu Vim.
 - Macro `q@`.
 - Visual block `Ctrl+V`.
 - Snippets, autocomplete fluent.
+- Surround: `ys`, `cs`, `ds`.
 
-### Tuan 4 - Master
+### Tuần 4 – Master
 
-- Cau hinh `lua/plugins/*.lua` rieng.
-- Them LSP cho ngon ngu chinh.
-- Dung `<Space>` + which-key, khong nho keymap.
-- Multi-buffer workflow: harpoon hoac bookmark.
+- Cấu hình `lua/plugins/*.lua` riêng.
+- Thêm LSP cho ngôn ngữ chính.
+- Dùng `<Space>` + which-key, không nhớ keymap.
+- Multi-buffer workflow: harpoon hoặc bookmark.
 - Treesitter textobjects: `if af ic ac`.
-- Cau hinh nvim-dap de debug.
+- Cấu hình nvim-dap để debug.
 
-> Sau 1 thang: ban se tu thay khong muon ve VSCode/PhpStorm.
+> Sau 1 tháng: bạn sẽ tự thấy không muốn về VSCode/PhpStorm.
 
 ---
 
-## Tra cuu nhanh - "Toi muon..."
+## Tra cứu nhanh – "Tôi muốn..."
 
-| Toi muon... | Phim |
+| Tôi muốn... | Phím |
 |-------------|------|
-| Mo mot file | `<Space><Space>` |
-| Tim text trong project | `<Space>/` |
-| Mo terminal ben canh code | `Ctrl+A v` |
-| Tao project workspace moi | `Ctrl+A o` -> ten moi |
-| Quay lai project hom qua | `Ctrl+A o` -> chon |
-| Commit code | `<Space>gg` -> Space stage -> `c` |
-| Rename ham/bien | `<Space>cr` |
+| Mở một file | `<Space><Space>` |
+| Tìm text trong project | `<Space>/` |
+| Mở terminal bên cạnh code | `Ctrl+A v` |
+| Tạo project workspace mới | `Ctrl+A o` → tên mới |
+| Quay lại project hôm qua | `Ctrl+A o` → chọn |
+| Commit code | `<Space>gg` → Space stage → `c` |
+| Rename hàm/biến | `<Space>cr` |
 | Xem documentation | `K` |
-| Tim noi function duoc goi | `gr` |
+| Tìm nơi function được gọi | `gr` |
 | Format file | `<Space>cf` |
 | Toggle comment | `gcc` |
 | Quit nvim | `:qa` |
 | Detach tmux | `Ctrl+A d` |
+| Đổi nội dung trong dấu `"..."` | `ci"` |
+| Bao một từ bằng `"..."` | `ysiw"` |
+| Lặp lại lệnh sửa cuối | `.` |
+| Đổi 1 biến nhiều chỗ trong file | `*` → `cgn` → mới → `.` lặp |
+| Đổi 1 biến cả project an toàn | `<Space>cr` (LSP rename) |
+| Nhảy về file vừa rời | `<Ctrl-o>` |
+| Mở file dưới con trỏ | `gf` |
 
 ---
 
-## Reload & cap nhat config
+## Reload & cập nhật config
 
 ```bash
 # Tmux
 Ctrl+A R                # trong tmux
 
 # Nvim
-:Lazy sync              # cap nhat plugin
-:Mason                  # cap nhat LSP
-:checkhealth            # chan doan
+:Lazy sync              # cập nhật plugin
+:Mason                  # cập nhật LSP
+:checkhealth            # chẩn đoán
 
 # Zsh
 exec zsh                # reload shell
-source ~/.zshrc         # source lai
+source ~/.zshrc         # source lại
 
 # WezTerm
-# Tu dong reload khi save wezterm.lua
+# Tự động reload khi save wezterm.lua
 ```
 
 ---
 
-> **Loi khuyen cuoi:**
-> Vim/tmux khong yeu cau ban ghi nho het. **Bam `<Space>` cho which-key, bam `:Telescope keymaps` de tim phim.**
-> Dau tu 30 phut moi ngay trong 1 thang, ban se quay lai VSCode chi de... copy file.
+> **Lời khuyên cuối:**
+> Vim/tmux không yêu cầu bạn ghi nhớ hết. **Bấm `<Space>` cho which-key, bấm `:Telescope keymaps` để tìm phím.**
+> Đầu tư 30 phút mỗi ngày trong 1 tháng, bạn sẽ quay lại VSCode chỉ để... copy file.
