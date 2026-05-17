@@ -7,6 +7,13 @@ return {
 	font_size = 13.0,
 	font = wezterm.font('JetBrainsMono Nerd Font'),
 	line_height = 1.3,
+
+	-- Auto-launch tmux (attach to existing or create new)
+	default_prog = { '/bin/zsh', '-l', '-c', '/opt/homebrew/bin/tmux attach || /opt/homebrew/bin/tmux new -s main' },
+
+	-- Initial window size (cols x rows)
+	initial_cols = 120,
+	initial_rows = 35,
 	-- macos_window_background_blur = 40,
 	macos_window_background_blur = 30,
 	
