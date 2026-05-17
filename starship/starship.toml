@@ -1,9 +1,25 @@
-add_newline = false
-# A minimal left prompt
-format = """$directory$character"""
+add_newline = true
+# Multi-line prompt: info on top row, prompt character on a new line
+format = """$directory\
+$git_branch\
+$git_status\
+$git_state\
+$package\
+$nodejs\
+$golang\
+$python\
+$rust\
+$java\
+$php\
+$ruby\
+$kubernetes\
+$aws\
+$docker_context\
+$line_break\
+$character"""
 palette = "catppuccin_mocha"
-# move the rest of the prompt to the right
-right_format = """$all"""
+# Keep clock on the far right of the top row
+right_format = """$time"""
 command_timeout = 1000
 
 [character]
