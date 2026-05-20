@@ -7,7 +7,8 @@ Terminal-centric dev setup on macOS, managed with [GNU Stow](https://www.gnu.org
 | Directory | Tool | Description |
 |-----------|------|-------------|
 | `nvim/` | [LazyVim](https://www.lazyvim.org/) | Neovim distro with LSP, Treesitter, Harpoon, mini-files, DAP debug |
-| `wezterm/` | [WezTerm](https://wezfurlong.org/wezterm/) | GPU terminal - Catppuccin Mocha, JetBrainsMono Nerd Font, transparency |
+| `wezterm/` | [WezTerm](https://wezfurlong.org/wezterm/) | GPU terminal - Catppuccin Mocha, JetBrainsMono Nerd Font, transparency, auto-attach tmux |
+| `warp/` | [Warp](https://www.warp.dev/) | AI terminal - Tokyo Night theme, Hack Nerd Font, vertical tabs, agent mode |
 | `tmux/` | [tmux](https://github.com/tmux/tmux) | Session manager - Catppuccin theme, sessionx, floax, resurrect |
 | `starship/` | [Starship](https://starship.rs/) | Shell prompt - minimal left, git/time on right, Catppuccin palette |
 | `aerospace/` | [AeroSpace](https://github.com/nikitabobko/AeroSpace) | Tiling window manager (i3-like) |
@@ -20,8 +21,8 @@ Terminal-centric dev setup on macOS, managed with [GNU Stow](https://www.gnu.org
 ```bash
 brew install neovim stow tmux starship fzf zoxide ripgrep fd lazygit \
              eza bat atuin direnv television zsh-autosuggestions
-brew install --cask font-jetbrains-mono-nerd-font wezterm \
-             nikitabobko/tap/aerospace
+brew install --cask font-jetbrains-mono-nerd-font font-hack-nerd-font \
+             wezterm warp nikitabobko/tap/aerospace
 brew tap FelixKratz/formulae && brew install sketchybar
 ```
 
@@ -35,10 +36,12 @@ git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 ```bash
 git clone git@github.com:jimnguyendev/-dotfiles.git ~/dotfiles
 cd ~/dotfiles
-stow .
+./setup.sh
 ```
 
-This symlinks everything into `~/.config/` (configured via `.stowrc`).
+`setup.sh` runs `stow .` to symlink everything under `~/.config/` (per `.stowrc`),
+then manually links `warp/settings.toml` and `warp/themes/*` into `~/.warp/`
+(Warp doesn't read from `~/.config`).
 
 Then install tmux plugins:
 ```bash
